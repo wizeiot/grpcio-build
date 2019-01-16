@@ -4,16 +4,25 @@ Origin=$(pwd)
 # python and boringssl tools
 sudo apt-get install python3 python3-pip python3-dev
 sudo apt-get install -y automake libtool
+Python_Version=`python -c 'import sys; version=sys.version_info[:3]; print("{0}.{1}".format(*version))'`
+echo "Python version: $Python_Version "
 
 # install pip tools
 pip3 install setuptools wheel enum34
-pip3 install $Origin/tools/coverage-4.5.1-cp35-cp35m-linux_aarch64.whl
-pip3 install $Origin/tools/Cython-0.28.3-cp35-cp35m-linux_aarch64.whl
+if [ "$Python_Version" = "3.5" ]; then
+  pip3 install $Origin/tools/coverage-4.5.1-cp35-cp35m-linux_aarch64.whl
+  pip3 install $Origin/tools/Cython-0.28.3-cp35-cp35m-linux_aarch64.whl
+elif [ "$Python_Version" = "3.7" ]; then
+  pip3 install $Origin/tools/coverage-4.5.2-cp37-cp37m-linux_aarch64.whl
+  pip3 install $Origin/tools/Cython-0.28.3-cp37-cp37m-linux_aarch64.whl
+else
+  pip3 install coverage Cython
+fi
 
 # download and compile instll grpc
 export REPO_ROOT=grpc  # REPO_ROOT can be any directory of your choice
-REPO_VER=$(curl -L https://grpc.io/release)
-# git clone -b v1.15.0 https://github.com/grpc/grpc $REPO_ROOT
+#REPO_VER=$(curl -L https://grpc.io/release) # Since v1.18.0 not updated yet
+REPO_VER="v1.8.0" 
 git clone -b $REPO_VER https://github.com/grpc/grpc $REPO_ROOT
 cd $REPO_ROOT
 git submodule update --init
